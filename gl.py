@@ -1,7 +1,8 @@
 import struct # to convert data to bytes
 from collections import namedtuple
 from obj import Obj
-from math import sin, cos
+import math
+import mathLib as ml
 
 V2 = namedtuple('Point2', ['x', 'y']) # 2D point
 V3 = namedtuple('Point2', ['x', 'y', 'z']) # 3D point
@@ -69,49 +70,28 @@ class Renderer(object):
         self.glLine(v2, v0, clr or self.currColor)
     
     def glModelMatrixNoNP(self, translate = (0,0,0), scale=(1,1,1), rotate = (0,0,0)):
-        #matriz de tranlacion
-        translation = [[1,0,0,translate[0]],
-                       [0,1,0,translate[1]],
-                       [0,0,1,translate[2]],
-                       [0,0,0,1]]
-        #matriz de scale
-        scaleMat = [[scale[0], 0,0,0],
-                    [0,scale[2],0,0],
+        translateMat = [[1,0,0,translate[0]],
+                        [0,1,0,translate[1]],
+                        [0,0,1,translate[2]],
+                        [0,0,0,1]]
+        scaleMat = [[scale[0],0,0,0],
+                    [0,scale[1],0,0],
                     [0,0,scale[2],0],
                     [0,0,0,1]]
-        
-        #matriz de rotate
-        xRotationMatrix = [
-            [1,0,0,0],
-            [0,cos(rotate[0]),-sin(rotate[0]),0],
-            [0,sin(rotate[0]),cos(rotate[0]),0],
-            [0,0,0,1]
-        ]
-
-        yRotationMatrix = [
-            [cos(rotate[1]),0,sin(rotate[1]),0],
+        rx = [[1,0,0,0],
+            [0,math.cos(math.radians(rotate[0])),-math.sin(math.radians(rotate[0])),0],
+            [0,math.sin(math.radians(rotate[0])),math.cos(math.radians(rotate[0])),0],
+            [0,0,0,1]]
+        ry = [[math.cos(math.radians(rotate[1])),0,math.sin(math.radians(rotate[1])),0],
             [0,1,0,0],
-            [-sin(rotate[1]),0,cos(rotate[1]),0],
-            [0,0,0,1]
-        ]
-
-        zRotationMatrix = [
-            [cos(rotate[2]),-sin(rotate[2]),0,0],
-            [sin(rotate[2]),cos(rotate[2]),0,0],
+            [-math.sin(math.radians(rotate[1])),0,math.cos(math.radians(rotate[1])),0],
+            [0,0,0,1]]
+        rz = [[math.cos(math.radians(rotate[2])),-math.sin(math.radians(rotate[2])),0,0],
+            [math.sin(math.radians(rotate[2])),math.cos(math.radians(rotate[2])),0,0],
             [0,0,1,0],
-            [0,0,0,1]
-        ]
-        
-        
-        #Logica para multiplicacion de las 2 matrices
-        result = [[0, 0, 0, 0] for _ in range(4)]
-
-        for i in range(4):
-            for j in range(4):
-                for k in range(4):
-                    result[i][j] += translation[i][k] * scaleMat[k][j]
-
-        return result
+            [0,0,0,1]]
+        rotationMat = ml.matMatMult(ml.matMatMult(rx, ry), rz)
+        return ml.matMatMult(ml.matMatMult(translateMat, rotationMat), scaleMat)
 
 
     def glAddVertices(self, vertices):
