@@ -1,5 +1,6 @@
 from mathLib import matMatMult
 import numpy as np
+import math
 
 
 def vertexShader(vertex, **kwargs):
@@ -105,3 +106,35 @@ def negativeFragmentShader(**kwargs):
       negative_color = [1 - c for c in color]
 
       return negative_color
+
+def pixelatedShader(**kwargs):
+    texture = kwargs["texture"]
+    texCoords = kwargs["texCoords"]
+    pixel_size = 100
+
+    tU, tV = texCoords[0], texCoords[1]
+    tU = round(tU * pixel_size) / pixel_size
+    tV = round(tV * pixel_size) / pixel_size
+
+    if texture != None:
+        color = texture.getColor(tU, tV)
+    else:
+        color = (1, 1, 1)
+
+    return color
+
+def grayscaleInvertShader(**kwargs):
+    texCoords = kwargs["texCoords"]
+    texture = kwargs["texture"]
+    if texture != None:
+        color = texture.getColor(texCoords[0], texCoords[1])
+    else:
+        color = (1, 1, 1)
+
+    intensity = 0.299 * color[0] + 0.587 * color[1] + 0.114 * color[2]
+
+    inverted_intensity = 1.0 - intensity
+
+    inverted_color = (inverted_intensity, inverted_intensity, inverted_intensity)
+
+    return inverted_color
