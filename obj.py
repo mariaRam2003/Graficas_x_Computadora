@@ -13,12 +13,12 @@ class Obj(object):
                 prefix, value = line.split(" ", 1)
             except:
                 continue
-
-            if prefix == "v": #vertices
-               self.vertices.append(list(map(float, value.split(" "))))
-            elif prefix == "vt": #texture coordinates
-               self.texcoords.append(list(map(float, value.split(" "))))
-            elif prefix == "vn": #normals
-               self.normals.append(list(map(float, value.split(" "))))
+        
+            if prefix =="v": #Vertices
+                self.vertices.append(list(map(float, list(filter(None,value.split(" "))))))
+            elif prefix =="vt": #Texture coordinates
+                self.texcoords.append(list(map(float, list(filter(None,value.split(" "))))))
+            elif prefix =="vn": #Normals
+                self.normals.append(list(map(float, list(filter(None,value.split(" "))))))
             elif prefix == "f": #Faces
-               self.faces.append([(list(map(int, vert.split("/")))) for vert in value.split(" ")])
+                self.faces.append([list(map(int, list(filter(None,vert.split("/"))))) for vert in list(filter(None,value.split(" ")))])

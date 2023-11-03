@@ -1,25 +1,35 @@
-def vertexShader(vertex, modelMatrix):
-    vt = [
-        vertex[0],
-        vertex[1],
-        vertex[2],
-        1
-    ]
+# Graphics Library Shader Language: GLSL
 
-    #multiplicar vt con el modelo matriz 4x4
-    vt_result = [0, 0, 0, 0]
-    for i in range(4):
-        for j in range(4):
-            vt_result[i] += modelMatrix[i][j] * vt[j]
+vertex_shader = """
+    #version 450 core
+    layout (location = 0) in vec3 position;
+    layout (location = 1) in vec2 texCoords;
+    layout (location = 2) in vec3 normals;
+    
+    uniform mat4 modelMatrix;
+    uniform mat4 viewMatrix;
+    uniform mat4 projectionMatrix;
+    
+    out vec2 UVs;
+    out vec3 normal;
+    
+    void main() {
+        gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);
+        UVs = texCoords;
+        normal = (modelMatrix * vec4(normals, 0.0)).xyz;
+    }
+"""
 
-    vt_result = [
-        vt_result[0] / vt_result[3],
-        vt_result[1] / vt_result[3],
-        vt_result[2] / vt_result[3]
-    ]
-
-    return vt_result
-
-def fragmentShader(**kwargs):
-    color = (0.5, 0.5, 0.5)
-    return color
+fragment_shader = """
+    #version 450 core
+    
+    layout (binding = 0) uniform sampler2D tex;
+    
+    in vec2 UVs;
+    in vec3 normal;
+    out vec4 fragColor;
+    
+    void main() {
+        fragColor = texture(tex, UVs);
+    }
+"""
